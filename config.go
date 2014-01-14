@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+  "path"
 )
 
 var (
@@ -13,7 +14,7 @@ var (
 	config        *yaml.File
 	environment   string
 	config_file   = flag.String("config", "./config/config.yml", "the config.yml")
-	log_file_name = flag.String("log", "./log/server.log", "where does the log go?")
+	log_file_path = flag.String("log", "./log/", "where does the log go?")
 )
 
 func init() {
@@ -26,7 +27,8 @@ func init() {
 
 func initlogAndConfig() {
 	//create log
-	log_file, err := os.OpenFile(*log_file_name, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0777)
+  log_file_name := path.Join(*log_file_path, environment + ".log")
+	log_file, err := os.OpenFile(log_file_name, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
 		panic("cannot write log")
 	}
