@@ -12,7 +12,7 @@ var (
 	exitHandler   ExitHandler
 	config        *yaml.File
 	environment   string
-	config_file   = flag.String("config", "./config/database.yml", "the database.yml")
+	config_file   = flag.String("config", "./config/config.yml", "the config.yml")
 	log_file_name = flag.String("log", "./log/server.log", "where does the log go?")
 )
 
@@ -53,9 +53,20 @@ func setEnv() {
 }
 
 func getConfigParameter(prefix, name string) string {
-	param, err := config.Get(prefix + "_" + environment + "." + name)
-	if err != nil {
-		log.Panic("missing config parameter: " + prefix + " " + name)
-	}
-	return param
+  yml_param := environment + "."
+  if (prefix != "") {
+    yml_param =  yml_param + prefix + "." + name
+  } else {
+    yml_param = yml_param + name
+  }
+  
+  param, err := config.Get(yml_param)
+  if err != nil {
+  	log.Panic("missing config parameter: " + yml_param)
+  }
+  return param
+}
+
+func GetConfigParameter(prefix, name string) string {
+  return getConfigParameter(prefix, name)
 }
