@@ -10,12 +10,14 @@ import (
 )
 
 var (
-	exitHandler   ExitHandler
-	config        *yaml.File
-	environment   string
-	config_file   = flag.String("config", "./config/config.yml", "the config.yml")
-	log_file_path = flag.String("log", "./log/", "where does the log go?")
+  exitHandler   ExitHandler
+  config        *yaml.File
+  environment   string
+  config_file   = flag.String("config", "./config/config.yml", "the config.yml")
+  log_file_path = flag.String("log", "./log/", "where does the log go?")
 )
+
+var GlobalLogFile *os.File
 
 func init() {
 	exitHandler = &StandardHandler{}
@@ -27,13 +29,15 @@ func init() {
 
 func initlogAndConfig() {
 	//create log
-  log_file_name := path.Join(*log_file_path, environment + ".log")
+  log_file_name := GetLogFile()
 	log_file, err := os.OpenFile(log_file_name, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
 		panic("cannot write log")
 	}
 	log.SetOutput(log_file)
 	log.SetFlags(5)
+  
+  GlobalLogFile = log_file
 
 	//read the config and build config stuff
 	c_file, err := ioutil.ReadFile(*config_file)
@@ -41,6 +45,10 @@ func initlogAndConfig() {
 		log.Panic("no config file found")
 	}
 	config = yaml.Config(string(c_file))
+}
+
+func GetLogFile() string {
+  return path.Join(*log_file_path, environment + ".log")
 }
 
 func GetEnv() string {
